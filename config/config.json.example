@@ -1,0 +1,39 @@
+{
+  "environment": "dev",
+  "gcloud": {
+    "datastore": {
+      "local": {
+        "dataset": "",
+        "emulator_host_path": "",
+        "host": "",
+        "emulator_host": "",
+        "project_id": ""
+      },
+      "production": {
+        "project_id": "",
+        "apikey": ""
+      }
+    },
+    "storage": {
+      "bucket": {
+        "name": ""
+      }
+    }
+  },
+  "session": {
+    "local": {
+      "domain": "localhost",
+      "path": "/",
+      "max_age": 28800
+    },
+    "production": {
+      "domain": "",
+      "path": "/",
+      "max_age": 28800
+    },
+    "keys": {
+      "authentication": "",
+      "encryption": ""
+    }
+  }
+}
