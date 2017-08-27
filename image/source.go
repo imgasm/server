@@ -5,7 +5,8 @@ import (
 	"github.com/imgasm/server/config"
 	"github.com/spf13/viper"
 	"net/http"
-	// "net/url"
+	"net/url"
+	"strings"
 )
 
 // todo: get rid of factory function and make it more readable
@@ -14,12 +15,12 @@ type imageSourceType string
 type imageSourceFactoryFunc func(*sourceConfig) imageSource
 
 type sourceConfig struct {
-	Type           imageSourceType
-	MountPath      string
-	AuthForwarding bool
-	Authorization  string
-	// AllowedOrigings []*url.URL
-	MaxAllowedSize int
+	Type            imageSourceType
+	MountPath       string
+	AuthForwarding  bool
+	Authorization   string
+	AllowedOrigings []*url.URL
+	MaxAllowedSize  int
 }
 
 var imageSourceMap = make(map[imageSourceType]imageSource)
@@ -52,12 +53,27 @@ func LoadImageSources() {
 	}
 	for name, factory := range imageSourceFactoryMap {
 		imageSourceMap[name] = factory(&sourceConfig{
-			Type:           name,
-			MountPath:      viper.GetString("imgsource.mountpath"),
-			AuthForwarding: viper.GetBool("imgsource.authforwarding"),
-			Authorization:  viper.GetString("imgsource.authorization"),
-			// AllowedOrigings: viper.GetString("imgsource.allowedorigins"),
-			MaxAllowedSize: viper.GetInt("imgsource.maxallowedsize"),
+			Type:            name,
+			MountPath:       viper.GetString("imgsource.mountpath"),
+			AuthForwarding:  viper.GetBool("imgsource.authforwarding"),
+			Authorization:   viper.GetString("imgsource.authorization"),
+			AllowedOrigings: parseAllowedOrigins(viper.GetString("imgsource.allowedorigins")),
+			MaxAllowedSize:  viper.GetInt("imgsource.maxallowedsize"),
 		})
 	}
+}
+
+func parseAllowedOrigins(allowedOrigins string) []*url.URL {
+	urls := []*url.URL{}
+	if allowedOrigins == "" {
+		return urls
+	}
+	for _, allowedOrigin := range strings.Split(allowedOrigins, ",") {
+		u, err := url.Parse(allowedOrigin)
+		if err != nil {
+			continue
+		}
+		urls = append(urls, u)
+	}
+	return urls
 }
